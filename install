@@ -35,6 +35,9 @@ log_info "Installing sqlite3 ..."
 
 log_info "Installing Postgres ..."
   sudo -E apt-get -y install postgresql postgresql-server-dev-all postgresql-contrib libpq-dev
+  sudo cp /discourse-env/pg_hba.conf /etc/postgresql/14/main/pg_hba.conf
+  sudo /etc/init.d/postgresql restart
+  export USER=root
   cd /tmp && sudo -u postgres createuser -s "$USER"
 
 log_info "Installing curl ..."
