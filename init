@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+# https://raw.githubusercontent.com/discourse/install-rails/master/linux
+
+# Install Rails
+
+trap 'ret=$?; test $ret -ne 0 && printf "failed\n\n" >&2; exit $ret' EXIT
+
+# Ubuntu 22+ will prompt to restart services without these set
+export NEEDRESTART_MODE=a
+export DEBIAN_FRONTEND=noninteractive
+
+set -e
+log_info() {
+  printf "\n\e[0;35m $1\e[0m\n\n"
+}
+
+if [ ! -f "$HOME/.bashrc" ]; then
+  touch $HOME/.bashrc
+fi
+
+log_info "Updating Packages ..."
+  sudo -E apt-get update
+
+log_info "Installing Git ..."
+  sudo -E apt-get -y install git
+
+log_info "Installing build essentials ..."
+  sudo -E apt-get -y install build-essential
+
+log_info "Installing libraries for common gem dependencies ..."
+  sudo -E apt-get -y install libxslt1-dev libcurl4-openssl-dev libksba8 libksba-dev libreadline-dev libssl-dev zlib1g-dev libsnappy-dev libyaml-dev
+
+log_info "Installing sqlite3 ..."
+ sudo -E apt-get -y install libsqlite3-dev sqlite3
+
+log_info "Installing Postgres ..."
+  sudo -E apt-get -y install postgresql postgresql-server-dev-all postgresql-contrib libpq-dev
+  sudo cp /discourse-env/pg_hba.conf /etc/postgresql/14/main/pg_hba.conf
+  sudo /etc/init.d/postgresql restart
+  export USER=root
+  cd /tmp && sudo -u postgres createuser -s "$USER"
+
+log_info "Installing curl ..."
+  sudo -E apt-get -y install curl
+
+log_info "Installing Redis ..."
+  cd /tmp && \
+    wget https://download.redis.io/redis-stable.tar.gz && \
+    tar -xzvf redis-stable.tar.gz && \
+    cd redis-stable && \
+    make && \
+    sudo -E make install
+  cd /tmp && \
+    rm redis-stable.tar.gz && \
+    rm -Rf redis-stable
+
+  redis-server --daemonize yes
+
+log_info "Installing ImageMagick ..."
+  sudo -E apt-get -y install libtool
+  wget https://raw.githubusercontent.com/discourse/discourse_docker/main/image/base/install-imagemagick
+  chmod +x install-imagemagick
+  sudo -E ./install-imagemagick
+
+log_info "Installing image utilities ..."
+  sudo -E apt-get -y install advancecomp gifsicle jpegoptim libjpeg-progs optipng pngcrush pngquant
+  sudo -E apt-get -y install jhead
+
+  # Install oxipng
+  cd /tmp && \
+    wget https://github.com/shssoichiro/oxipng/releases/download/v8.0.0/oxipng-8.0.0-x86_64-unknown-linux-musl.tar.gz && \
+    tar -xzvf oxipng-8.0.0-x86_64-unknown-linux-musl.tar.gz && \
+    sudo cp oxipng-8.0.0-x86_64-unknown-linux-musl/oxipng /usr/local/bin
+  cd /tmp && \
+    rm oxipng-8.0.0-x86_64-unknown-linux-musl.tar.gz && \
+    rm -Rf oxipng-8.0.0-x86_64-unknown-linux-musl
+
+if [[ ! -d "$HOME/.rbenv" ]]; then
+  log_info "Installing rbenv ..."
+    git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+
+    if ! grep -qs "rbenv init" ~/.bashrc; then
+      printf 'export PATH="$HOME/.rbenv/bin:$PATH"\n' >> ~/.bashrc
+      printf 'eval "$(rbenv init - --no-rehash)"\n' >> ~/.bashrc
+    fi
+
+    export PATH="$HOME/.rbenv/bin:$PATH"
+    eval "$(rbenv init -)"
+fi
+
+if [[ ! -d "$HOME/.rbenv/plugins/ruby-build" ]]; then
+  log_info "Installing ruby-build, to install Rubies ..."
+    git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+fi
+
+ruby_version="3.2.1"
+
+log_info "Installing Ruby $ruby_version ..."
+  rbenv install "$ruby_version"
+
+log_info "Setting $ruby_version as global default Ruby ..."
+  rbenv global $ruby_version
+  rbenv rehash
+
+log_info "Updating to latest Rubygems version ..."
+  gem update --system
+
+log_info "Installing Rails ..."
+  gem install rails
+
+log_info "Installing Bundler ..."
+  gem install bundler:2.4.4
+
+log_info "Installing MailHog ..."
+  sudo wget -qO /usr/bin/mailhog https://github.com/mailhog/MailHog/releases/download/v1.0.1/MailHog_linux_amd64
+  sudo chmod +x /usr/bin/mailhog
+
+log_info "Installing Node.js 18 ..."
+  curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+  sudo -E apt-get -y install nodejs
+  sudo npm install -g svgo
+  sudo npm install -g yarn
