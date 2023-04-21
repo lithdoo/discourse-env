@@ -1,0 +1,25 @@
+<div class="admin-controls">
+  <HorizontalOverflowNav @className="main-nav nav plugin-nav">
+    <NavItem @route="adminPlugins.index" @label="admin.plugins.title" />
+    {{#each this.adminRoutes as |route|}}
+      <NavItem @route={{route.full_location}} @label={{route.label}} />
+    {{/each}}
+    {{#if this.currentUser.admin}}
+      <NavItem
+        @route="adminSiteSettingsCategory"
+        @label="admin.plugins.change_settings"
+        @routeParam="plugins"
+      />
+    {{/if}}
+  </HorizontalOverflowNav>
+</div>
+
+<div class="admin-container">
+  {{#each this.brokenAdminRoutes as |route|}}
+    <div class="alert alert-error">
+      {{i18n "admin.plugins.broken_route" name=(i18n route.label)}}
+    </div>
+  {{/each}}
+
+  {{outlet}}
+</div>

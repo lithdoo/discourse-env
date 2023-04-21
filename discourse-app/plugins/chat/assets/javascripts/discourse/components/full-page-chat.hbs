@@ -1,0 +1,6 @@
+{{#if this.chat.activeChannel}}
+  <ChatLivePane
+    @channel={{this.chat.activeChannel}}
+    @targetMessageId={{readonly @targetMessageId}}
+  />
+{{/if}}

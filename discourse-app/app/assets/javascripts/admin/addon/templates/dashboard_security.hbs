@@ -1,0 +1,27 @@
+<div class="sections">
+  <span>
+    <PluginOutlet
+      @name="admin-dashboard-security-top"
+      @connectorTagName="div"
+    />
+  </span>
+
+  <div class="main-section">
+    <AdminReport
+      @dataSourceName="suspicious_logins"
+      @filters={{this.lastWeekfilters}}
+    />
+
+    <AdminReport
+      @dataSourceName="staff_logins"
+      @filters={{this.lastWeekfilters}}
+    />
+
+    <span>
+      <PluginOutlet
+        @name="admin-dashboard-security-bottom"
+        @connectorTagName="div"
+      />
+    </span>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+.directory {
+  .period-chooser .period-chooser-header h2.selected-name {
+    font-size: var(--font-up-1);
+  }
+
+  &.users-directory {
+    .filter-name {
+      width: 100%;
+    }
+
+    .directory-last-updated {
+      margin-bottom: 1em;
+    }
+  }
+
+  .directory-controls {
+    display: block;
+  }
+
+  .total-rows {
+    color: var(--primary-medium);
+    padding: 5px;
+  }
+}
+
+.edit-user-directory-columns-modal .modal-inner-container {
+  width: 90%;
+  min-width: unset;
+}

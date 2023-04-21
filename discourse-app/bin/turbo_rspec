@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+ENV["RAILS_ENV"] ||= "test"
+
+require "./lib/turbo_tests"
+require "optparse"
+
+requires = []
+formatters = []
+verbose = false
+fail_fast = nil
+
+OptionParser
+  .new do |opts|
+    opts.on("-r", "--require PATH", "Require a file.") { |filename| requires << filename }
+
+    opts.on("-f", "--format FORMATTER", "Choose a formatter.") do |name|
+      formatters << { name: name, outputs: [] }
+    end
+
+    opts.on("-o", "--out FILE", "Write output to a file instead of $stdout") do |filename|
+      formatters << { name: "progress", outputs: [] } if formatters.empty?
+      formatters.last[:outputs] << filename
+    end
+
+    opts.on("-v", "--verbose", "More output") { verbose = true }
+
+    opts.on("--fail-fast=[N]") do |n|
+      n =
+        begin
+          Integer(n)
+        rescue StandardError
+          nil
+        end
+      fail_fast = (n.nil? || n < 1) ? 1 : n
+    end
+  end
+  .parse!(ARGV)
+
+requires.each { |f| require(f) }
+
+formatters << { name: "progress", outputs: [] } if formatters.empty?
+
+formatters.each { |formatter| formatter[:outputs] << "-" if formatter[:outputs].empty? }
+
+if ARGV.empty?
+  files = TurboTests::Runner.default_spec_folders
+  use_runtime_info = true
+else
+  files = ARGV
+  use_runtime_info = false
+end
+
+puts "Running turbo_rspec using files in #{files}"
+success =
+  TurboTests::Runner.run(
+    formatters: formatters,
+    files: files,
+    verbose: verbose,
+    fail_fast: fail_fast,
+    use_runtime_info: use_runtime_info,
+  )
+
+if success
+  exit 0
+else
+  exit 1
+end

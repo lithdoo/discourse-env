@@ -1,0 +1,95 @@
+.topic-list-item td:first-child,
+.topic-post {
+  border-left: 1px solid transparent;
+}
+
+.topic-list tr.selected td:first-child,
+.topic-list-item.selected td:first-child,
+.latest-topic-list-item.selected,
+.search-results .fps-result.selected {
+  box-shadow: inset 3px 0 0 var(--danger); // needs to be inset for Edge
+}
+
+.featured-topic.selected,
+.topic-post.selected {
+  box-shadow: -3px 0 0 var(--danger);
+}
+
+.tabLoc:focus {
+  outline: none;
+}
+
+.latest .featured-topic {
+  padding-left: 4px;
+}
+
+.topic-list-item.selected {
+  background-color: inherit;
+}
+
+.keyboard-shortcuts-modal {
+  .modal-inner-container {
+    --modal-max-width: 80vw;
+  }
+}
+
+#keyboard-shortcuts-help {
+  box-sizing: border-box;
+  padding: 1em;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 80vw;
+  max-width: 1500px;
+  max-height: 85vh !important; // overrides a default modal !important for extra space
+
+  .keyboard-shortcuts-help__container {
+    columns: auto 20em;
+    section {
+      display: inline-block;
+      margin-bottom: 1.5em;
+      width: 100%;
+    }
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  kbd:first-child {
+    margin-left: 0;
+  }
+
+  @for $i from 1 through 25 {
+    .span-#{$i} {
+      grid-row-end: span $i;
+    }
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+
+    li {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    span {
+      border-radius: 3px;
+      display: inline-flex;
+      margin: 0 6px;
+      padding: 2px 1px 4px;
+    }
+
+    span:first-child {
+      margin-left: 0;
+    }
+
+    kbd {
+      font-family: var(--font-family);
+      font-weight: bold;
+    }
+  }
+}
