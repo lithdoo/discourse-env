@@ -5,6 +5,7 @@ COPY install /discourse-env/
 COPY mirror /discourse-env/
 COPY pg_hba.conf /discourse-env/
 COPY sources.list /discourse-env/
+COPY install-imagemagick /discourse-env/
 COPY discourse-app /discourse-app/
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 RUN apt-get update
